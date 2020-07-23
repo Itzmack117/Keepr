@@ -21,11 +21,13 @@ namespace Keepr.Controllers
             _vs = vs;
         }
         [HttpGet]
-        public ActionResult<IEnumerable<Vault>> Get()
+        [Authorize]
+        public ActionResult<IEnumerable<Vault>> GetbyUserId()
         {
             try
             {
-                return Ok(_vs.Get());
+                string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                return Ok(_vs.Get(userId));
             }
             catch (Exception e)
             {
@@ -51,7 +53,7 @@ namespace Keepr.Controllers
         {
             try
             {
-                var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
                 newVault.UserId = userId;
                 return Ok(_vs.Create(newVault));
             }
@@ -63,13 +65,13 @@ namespace Keepr.Controllers
 
         [HttpPut("{id}")]
         [Authorize]
-        public ActionResult<Vault> Edit(int id, [FromBody] Vault keepUpdate)
+        public ActionResult<Vault> Edit(int id, [FromBody] Vault vaultUpdate)
         {
             try
             {
-                keepUpdate.Id = id;
+                vaultUpdate.Id = id;
                 string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                return Ok(_vs.Edit(keepUpdate, userId));
+                return Ok(_vs.Edit(vaultUpdate, userId));
             }
             catch (System.Exception err)
             {

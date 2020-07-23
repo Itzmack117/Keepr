@@ -13,9 +13,9 @@ namespace Keepr.Services
         {
             _repo = repo;
         }
-        public IEnumerable<Vault> Get()
+        public IEnumerable<Vault> Get(string userId)
         {
-            return _repo.Get();
+            return _repo.Get(userId);
         }
                 public Vault GetById(int id)
         {
@@ -33,12 +33,18 @@ namespace Keepr.Services
 
 
     
-        internal Vault Edit(Vault vaultUpdate, string userId)
+        internal Vault Edit(Vault VaultUpdate, string userId)
         {
-            Vault original = _repo.GetById(vaultUpdate.Id);
-            original = vaultUpdate;
-            return _repo.Edit(original);
-            
+            Vault found = GetById(VaultUpdate.Id);
+            if (found.UserId != userId)
+            {
+                throw new Exception("You can only delete your own vaults");
+            }
+            if (_repo.Edit(VaultUpdate, userId))
+            {
+                return VaultUpdate;
+            }
+            throw new Exception("couldnt edit");
         }
         internal string Delete(int id, string userId)
         {

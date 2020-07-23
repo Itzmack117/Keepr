@@ -15,10 +15,10 @@ namespace Keepr.Repositories
             _db = db;
         }
 
-        internal IEnumerable<Vault> Get()
+        internal IEnumerable<Vault> Get(string userId)
         {
-            string sql = "SELECT * FROM Vaults WHERE isPrivate = 0;";
-            return _db.Query<Vault>(sql);
+            string sql = "SELECT * FROM Vaults WHERE userId = @userId";
+            return _db.Query<Vault>(sql, new { userId });
         }
          internal Vault GetById(int id)
          {
@@ -26,29 +26,32 @@ namespace Keepr.Repositories
             return _db.QueryFirstOrDefault<Vault>(sql, new { id });
             }
 
-        internal Vault Create(Vault newKeep)
+        internal Vault Create(Vault newVault)
         {
         string sql = @"
         INSERT INTO Vaults
-        (name, description, isPrivate, userId)
+        (name, description, userId)
         VALUES
-        (@Name, @Description, @IsPrivate, @UserId);
+        (@Name, @Description, @UserId);
         SELECT LAST_INSERT_ID();";
-          newKeep.Id = _db.ExecuteScalar<int>(sql, newKeep);
-            return newKeep;
+          newVault.Id = _db.ExecuteScalar<int>(sql, newVault);
+            return newVault;
         }
 
-         internal Vault Edit(Vault original)
-    {
-      string sql = @"
-        UPDATE Vaults
-        SET
-            name = @Name,
-            description = @Description,
-            WHERE id = @Id;
-            SELECT * FROM Keeps WHERE id = @Id;";
-      return _db.QueryFirstOrDefault<Vault>(sql, original);
-    }
+        internal bool Edit(Vault original, string userId)
+        {
+            original.UserId = userId;
+            string sql = @"
+            UPDATE Vaults
+            SET
+                name = @Name,
+                description = @Description,
+                WHERE id = @Id
+                AND userId = @UserId";
+            int affectedRows = _db.Execute(sql, original);
+            return affectedRows == 1;
+        }
+
             internal bool Delete(int id, string userId)
         {
             string sql = "DELETE FROM Vaults WHERE id = @id AND userId = @userId LIMIT 1";
