@@ -9,7 +9,6 @@ import ActiveKeep from "./views/ActiveKeep.vue";
 // @ts-ignore
 import ActiveVault from "./views/ActiveVault.vue"
 import { authGuard } from "@bcwdev/auth0-vue";
-import { component } from "vue/types/umd";
 
 Vue.use(Router);
 
@@ -27,12 +26,12 @@ export default new Router({
       beforeEnter: authGuard
     },
     {
-      path:"/viewKeep",
+      path:"/keeps/:keepId",
       name:"activeKeep",
       component: ActiveKeep,
     },
     {
-      path: "/viewVault",
+      path: "/vaults/:vaultId",
       name: "activeVault",
       component: ActiveVault,
     }
