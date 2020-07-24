@@ -16,12 +16,13 @@ namespace Keepr.Controllers
     public class VaultsController : ControllerBase
     {
         private readonly VaultsService _vs;
-        public VaultsController(VaultsService vs)
+        private readonly VaultKeepsService _vks;
+        public VaultsController(VaultsService vs, VaultKeepsService vks)
         {
             _vs = vs;
+            _vks = vks;
         }
         [HttpGet]
-        [Authorize]
         public ActionResult<IEnumerable<Vault>> GetbyUserId()
         {
             try
@@ -34,12 +35,28 @@ namespace Keepr.Controllers
                 return BadRequest(e.Message);
             };
         }
+            [HttpGet("{vaultId}/keeps")]
+            [Authorize]
+    public ActionResult<IEnumerable<Keep>> GetKeepsbyVaultId(int vaultId)
+    {
+      try
+      {
+           string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+           IEnumerable<Keep> vaultkeeps = _vks.GetKeepsByVaultId(vaultId, userId);
+        return Ok(vaultkeeps);
+      }
+      catch (Exception e)
+      {
+        return BadRequest(e.Message);
+      }
+    } 
         [HttpGet("{id}")]
         public ActionResult<Vault> GetById(int id)
         {
             try
             {
-                return Ok(_vs.GetById(id));
+                string userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                return Ok(_vs.GetById(id, userId));
             }
             catch (System.Exception err)
             {

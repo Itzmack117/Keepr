@@ -5,21 +5,31 @@ using Keepr.Repositories;
 
 namespace Keepr.Services
 {
-    public class VaultKeepsService
+  public class VaultKeepsService
+  {
+    private readonly VaultKeepsRepository _repo;
+    public VaultKeepsService(VaultKeepsRepository repo)
     {
-        private readonly VaultKeepsRepository _repo;
-
-        public VaultKeepsService(VaultKeepsRepository repo)
-        {
-            _repo = repo;
-        }
-
-        internal IEnumerable<ViewModelVaultedKeep> Get(string user)
-        {
-            return _repo.GetByUser(user);
-        }
-
-
+      _repo = repo;
     }
 
+    public IEnumerable<Keep> GetKeepsByVaultId(int id, string userId)
+    {
+      return _repo.GetKeepsByVaultId(id, userId);
+    }
+    public DTOVaultedKeep Get(int Id)
+    {
+      DTOVaultedKeep found = _repo.GetById(Id);
+      if (found == null) { throw new Exception("Keep cannot be placed in vault"); }
+      return found;
+    }
+    internal DTOVaultedKeep Create(DTOVaultedKeep DTOVK)
+    {
+      if (_repo.hasRelationship(DTOVK))
+      {
+        throw new Exception("you already have that keep in this vault");
+      }
+      return _repo.Create(DTOVK);
+    }
+  }
 }

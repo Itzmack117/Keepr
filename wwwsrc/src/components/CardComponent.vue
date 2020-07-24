@@ -33,5 +33,6 @@ background-color: aliceblue;
 border-radius: 15px;
 margin: 3rem;
 width: 30vh;
+text-align: center;
 }
 </style>

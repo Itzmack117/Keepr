@@ -26,14 +26,9 @@ namespace Keepr.Services
       }
       return found;
     }
-    public Keep GetByUserId(string userId)
+    public IEnumerable<Keep> GetByUserId(string userId)
     {
-      Keep found = _repo.GetByUserId(userId);
-      if (found == null)
-      {
-        throw new Exception("Problem retrieving User Keeps");
-      }
-      return found;
+      return _repo.GetByUserId(userId);
     }
     public Keep Create(Keep newKeep)
     {
